@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/atomic.b4448dde.css') }}">
+    <title>Tony Stock</title>
+   
+</head>
+<body>
+  <script>
+      // var data = {data[0]["symbolName"]}
+      $(document).ready(function(){
+          $("#stock_name").text('{{data[0]["symbolName"]}}');
+          $("#stock").text('{{data[0]["systexId"]}}');
+          $("#sectorName").text('{{data[0]["sectorName"]}}');
+          $("#price").text('{{data[0]["price"]}}');
+          $("#change").text('{{data[0]["change"]}}');
+          $("#changePercent").text('('+'{{data[0]["changePercent"]}}'+')');
+          $("#limitUpPrice").text('{{data[0]["limitUpPrice"]}}');
+          $("#limitDownPrice").text('{{data[0]["limitDownPrice"]}}');
+  
+          $("#regularMarketDayHigh").text('{{data[0]["regularMarketDayHigh"]}}');
+          $("#regularMarketDayLow").text('{{data[0]["regularMarketDayLow"]}}');
+          $("#regularMarketOpen").text('{{data[0]["regularMarketOpen"]}}');
+          $("#yesterday_closer").text('{{data[0]["regularMarketPreviousClose"]}}');
+          $("#previousVolume").text('{{data[0]["previousVolume"]}}'/1000);
+          $("#avgPrice").text('{{data[0]["avgPrice"]}}');
+          $("#volume").text('{{data[0]["volume"]}}'/1000);
+          $("#turnoverM").text('{{data[0]["turnoverM"]}}'/100);
+          $("#dealPrice").text('{{data[0]["price"]}}');
+          $("#change2").text('{{data[0]["change"]}}');
+          $("#changePercent2").text('{{data[0]["changePercent"]}}');
+          var inMarket = {{data[0]["inMarket"]}}
+          var outMarket = {{data[0]["outMarket"]}}
+          var inMarketPercent = (inMarket/(outMarket+inMarket)*100).toFixed(2);
+          var outMarketPercent = (outMarket/(outMarket+inMarket)*100).toFixed(2);
+          $("#inMarket").text('{{data[0]["inMarket"]}}'+' ('+inMarketPercent+'%)');
+          $("#outMarket").text('{{data[0]["outMarket"]}}'+' ('+outMarketPercent+'%)');
+          $("#inMarketPercent").attr('style','width:'+inMarketPercent+'%');
+          $("#outMarketPercent").attr('style','width:'+outMarketPercent+'%');
+          //console.log(data[1])
+          $("#ask_1").text('{{data[0]['orderbook'][0]['ask']}}');
+          $("#ask_2").text('{{data[0]['orderbook'][1]['ask']}}');
+          $("#ask_3").text('{{data[0]['orderbook'][2]['ask']}}');
+          $("#ask_4").text('{{data[0]['orderbook'][3]['ask']}}');
+          $("#ask_5").text('{{data[0]['orderbook'][4]['ask']}}');
+          $("#bid_1").text('{{data[0]['orderbook'][0]['bid']}}');
+          $("#bid_2").text('{{data[0]['orderbook'][1]['bid']}}');
+          $("#bid_3").text('{{data[0]['orderbook'][2]['bid']}}');
+          $("#bid_4").text('{{data[0]['orderbook'][3]['bid']}}');
+          $("#bid_5").text('{{data[0]['orderbook'][4]['bid']}}');
+          $("#bidVolK_1").text('{{data[0]['orderbook'][0]['bidVolK']}}');
+          $("#bidVolK_2").text('{{data[0]['orderbook'][1]['bidVolK']}}');
+          $("#bidVolK_3").text('{{data[0]['orderbook'][2]['bidVolK']}}');
+          $("#bidVolK_4").text('{{data[0]['orderbook'][3]['bidVolK']}}');
+          $("#bidVolK_5").text('{{data[0]['orderbook'][4]['bidVolK']}}');
+          $("#askVolK_1").text('{{data[0]['orderbook'][0]['askVolK']}}');
+          $("#askVolK_2").text('{{data[0]['orderbook'][1]['askVolK']}}');
+          $("#askVolK_3").text('{{data[0]['orderbook'][2]['askVolK']}}');
+          $("#askVolK_4").text('{{data[0]['orderbook'][3]['askVolK']}}');
+          $("#askVolK_5").text('{{data[0]['orderbook'][4]['askVolK']}}');
+          $("#sumAskVolK").text('{{data[0]['sumAskVolK']}}');
+          $("#sumBidVolK").text('{{data[0]['sumBidVolK']}}');
+          var day = new Date('{{data[0]["regularMarketTime"]}}')
+          day=day.toLocaleString('zh-TW', {timeZone: 'Asia/Taipei'});
+          $("#regularMarketTime").text(day);
+          // $("#detail").toggle()
+          // $("#prepare").hide();
+          changeColor()
+      })
+      // $("#regularMarketTime").ready(changeColor())
+  
+    function changeColor(){
+          document.querySelectorAll('span').forEach(function(item) {
+              var closer = document.getElementById('yesterday_closer').innerHTML
+              console.log(closer)
+              if(item.classList.contains('computed_by_yesterday')){
+                if (item.innerHTML == document.getElementById('limitUpPrice').innerHTML){
+                  $(item).addClass('C(#fff) Px(6px) Py(2px) Bdrs(4px) Bgc($c-trend-up)')
+                }
+                else if (item.innerHTML == document.getElementById('limitDownPrice').innerHTML){
+                  $(item).addClass('C(#fff) Px(6px) Py(2px) Bdrs(4px) Bgc($c-trend-down)')
+                }
+                else if (item.innerHTML < closer){
+                  $(item).addClass('C($c-trend-down)')
+                }
+                else if (item.innerHTML > closer){
+                  $(item).addClass('C($c-trend-up)')
+                }
+              }
+              if(item.classList.contains('computed_by_yesterday_percent')){
+                  if(item.innerHTML>0 || item.innerHTML.includes('+')){
+                      $(item).addClass('C($c-trend-up)')
+                  }
+                  if(item.innerHTML<0 || item.innerHTML.includes('-')){
+                      $(item).addClass('C($c-trend-down)')
+                  }
+              }
+            })
+      }
+      
+      </script>
+    <div id="detail" style="display: block;" bis_skin_checked="1">
+        <div class="flex" id="draw_detail" bis_skin_checked="1">
+         <div class="portfolio_item" id="atomic" bis_skin_checked="1">
+            <div id="main-0-QuoteHeader-Proxy" bis_skin_checked="1">
+              <div class="Mb($m-module-24)" bis_skin_checked="1">
+                <div class="D(f) Ai(c) Mb(6px)" bis_skin_checked="1">
+                  <h1 id="stock_name" class="C($c-link-text) Fw(b) Fz(24px) Mend(8px)"></h1>
+                  <span id="stock" class="C($c-icon) Fz(24px) Mend(20px)"></span>
+                  <div class="Flxg(2)" bis_skin_checked="1">
+                    <a id="sectorName" class="Td(n) Px(8px) Py(3px) Fz(12px) Fw(b) Bdrs(11px) C(#188fff) Bgc($tag-bg-blue) Bgc($tag-bg-blue-hover):h"></a>
+                  </div>
+                </div>
+                <div class="D(f) Jc(sb) Ai(fe)" bis_skin_checked="1">
+                  <div class="D(f) Fld(c) Ai(fs)" bis_skin_checked="1">
+                    <div class="D(f) Ai(fe) Mb(4px)" bis_skin_checked="1">
+                      <span id="price" class="Fz(32px) Fw(b) Lh(1) Mend(16px) D(f) Ai(c) computed_by_yesterday"></span><span id="change" class="Fz(20px) Fw(b) Lh(1.2) Mend(4px) D(f) Ai(c) computed_by_yesterday_percent">0.50</span><span id="changePercent" class="Jc(fe) Fz(20px) Lh(1.2) Fw(b) D(f) Ai(c) computed_by_yesterday_percent">(+1.07%)</span><span hidden="" id="limitUpPrice">51.5</span><span hidden="" id="limitDownPrice">42.20</span>
+                    </div>
+                    <span id="regularMarketTime" class="C(#6e7780) Fz(12px) Fw(b)"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="Fx(n) W(316px) Bxz(bb) Pstart(16px) Pt(12px)" bis_skin_checked="1">
+              <div class="Pos(r)" bis_skin_checked="1">
+                <ul class="D(f) Fld(c) Flw(w) H(192px) Mx(-16px)">
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">成交</span><span id="dealPrice" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">開盤</span><span id="regularMarketOpen" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">最高</span><span id="regularMarketDayHigh" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">最低</span><span id="regularMarketDayLow" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">均價</span><span id="avgPrice" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">成交值(億)</span><span id="turnoverM" class="Fw(600) Fz(16px)--mobile Fz(14px)">82.418</span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">昨收</span><span class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c)" id="yesterday_closer"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">漲跌幅</span><span id="changePercent2" class="Jc(fe) Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday_percent"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">漲跌</span><span id="change2" class="Fw(600) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday_percent"></span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">總量</span><span id="volume" class="Fw(600) Fz(16px)--mobile Fz(14px)">1729</span>
+                  </li>
+                  <li class="price-detail-item H(32px) Mx(16px) D(f) Jc(sb) Ai(c) Bxz(bb) Px(0px) Py(4px) Bdbs(s) Bdbc($bd-primary-divider) Bdbw(1px)">
+                    <span class="C(#232a31) Fz(16px)--mobile Fz(14px)">昨量</span><span id="previousVolume" class="Fw(600) Fz(16px)--mobile Fz(14px)">1159</span>
+                  </li>
+
+                </ul>
+                <div class="Mt(24px)" bis_skin_checked="1">
+                  <div class="D(f) Jc(sb) Ai(c) Mb(4px) Fz(16px)--mobile Fz(14px)" bis_skin_checked="1">
+                    <div class="C(#232a31) Fw(b)" bis_skin_checked="1">
+                      <span>內盤</span><span id="inMarket" class="Mstart(5px) C($c-trend-down)"></span>
+                    </div>
+                    <div class="C(#232a31) Fw(b)" bis_skin_checked="1">
+                        <span id="outMarket" class="Mend(5px) C($c-trend-up)"></span><span>外盤</span>
+                    </div>
+                  </div>
+                  <div class="D(f) Jc(sb)" bis_skin_checked="1">
+                    <div id="inMarketPercent" class="H(8px) Mend(1px) Bgc($c-trend-down) Bdrsbstart(6px) Bdrststart(6px)" bis_skin_checked="1"></div>
+                    <div id="outMarketPercent" class="H(8px) Mstart(1px) Bgc($c-trend-up) Bdrsbend(6px) Bdrstend(6px)" bis_skin_checked="1"></div>
+                  </div>
+                </div>
+                <div class="Mt(12px)" bis_skin_checked="1">
+                  <div class="D(f)" bis_skin_checked="1">
+                    <div class="W(50%) Bxz(bb)" bis_skin_checked="1">
+                      <div class="D(f) Jc(sb) Ai(c) Mstart(0) Mend(16px) C(#232a31) Fz(16px)--mobile Fz(14px) Pb(4px) Bdbw(1px) Bdbs(s) Bdbc($bd-primary-divider)" bis_skin_checked="1">
+                        <span>量</span><span>委買價</span>
+                      </div>
+                      <div class="D(f) Jc(sb) Ai(c) Py(6px) Pstart(0px) Pend(10px)" bis_skin_checked="1">
+                        <div class="Flxg(2)" bis_skin_checked="1">
+                          <div id="bidVolK_1" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mend(4px) Jc(fs)" bis_skin_checked="1">
+                          </div>
+                          <div id="bidVolK_2" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mend(4px) Jc(fs)" bis_skin_checked="1">
+                          </div>
+                          <div id="bidVolK_3" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mend(4px) Jc(fs)" bis_skin_checked="1">
+                          </div>
+                          <div id="bidVolK_4" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mend(4px) Jc(fs)" bis_skin_checked="1">
+                          </div>
+                          <div id="bidVolK_5" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mend(4px) Jc(fs)" bis_skin_checked="1">
+                          </div>
+                        </div>
+                        <div class="D(f) Fld(c) Ai(fe)" bis_skin_checked="1">
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="bid_1" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="bid_2" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="bid_3" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="bid_4" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="bid_5" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="D(f) Jc(sb) Ai(c) Mstart(0) Mend(16px) C(#232a31) Fz(16px)--mobile Fz(14px) Pt(4px) Bdtw(1px) Bdts(s) Bdtc($bd-primary-divider)" bis_skin_checked="1">
+                       <span id="sumBidVolK"></span><span>小計</span>
+                      </div>
+                    </div>
+                    <div class="W(50%) Bxz(bb)" bis_skin_checked="1">
+                      <div class="D(f) Jc(sb) Ai(c) C(#232a31) Fz(16px)--mobile Fz(14px) Pb(4px) Bdbw(1px) Bdbs(s) Bdbc($bd-primary-divider) Mstart(16px) Mend(0)" bis_skin_checked="1">
+                        <span>委賣價</span><span>量</span>
+                      </div>
+                      <div class="D(f) Jc(sb) Ai(c) Py(6px) Pstart(10px) Pend(0px)" bis_skin_checked="1">
+                        <div class="D(f) Fld(c) Ai(fs)" bis_skin_checked="1">
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="ask_1" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="ask_2" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="ask_3" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="ask_4" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) C($c-trend-up)"></span>
+                          </div>
+                          <div class="D(f) Ai(c) H(28px)" bis_skin_checked="1">
+                            <span id="ask_5" class="Fw(n) Fz(16px)--mobile Fz(14px) D(f) Ai(c) computed_by_yesterday C($c-trend-up)">47.75</span>
+                          </div>
+                        </div>
+                        <div class="Flxg(2)" bis_skin_checked="1">
+                          <div id="askVolK_1" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mstart(4px) Jc(fe)" bis_skin_checked="1">
+                          </div>
+                          <div id="askVolK_2" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mstart(4px) Jc(fe)" bis_skin_checked="1">
+                          </div>
+                          <div id="askVolK_3" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mstart(4px) Jc(fe)" bis_skin_checked="1">
+                          </div>
+                          <div id="askVolK_4" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mstart(4px) Jc(fe)" bis_skin_checked="1">
+                          </div>
+                          <div id="askVolK_5" class="Pos(r) D(f) Ai(c) H(28px) C(#232a31) Fz(16px)--mobile Fz(14px) Pstart(0px) Pend(0px) Mstart(4px) Jc(fe)" bis_skin_checked="1">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="D(f) Jc(sb) Ai(c) C(#232a31) Fz(16px)--mobile Fz(14px) Pt(4px) Bdtw(1px) Bdts(s) Bdtc($bd-primary-divider) Mstart(16px) Mend(0)" bis_skin_checked="1">
+                        <span>小計</span><span id="sumAskVolK"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+                  
+            <div class="portfolio_item" id="draw" bis_skin_checked="1">
+              <nav class="templatemo-top-nav col-lg-12 col-md-12">
+                <ul class="text-uppercase">
+                  <li><a href="#" onclick="show_draw(this.innerHTML)">技術線圖</a></li>
+                  <li><a href="#" onclick="show_draw(this.innerHTML)">即時走勢</a></li>
+                </ul>
+              </nav>
+              <div id="container">
+                <div id="container_tech" style="display: inline-block; overflow: hidden;" bis_skin_checked="1" data-highcharts-chart="17">all</div>
+                <div id="container_realtime" style="display: none;" bis_skin_checked="1" data-highcharts-chart="16">today</div>
+              </div>
+            </div>
+        </div>
+        <script language="JavaScript">
+          function show_draw(type){
+            if (type == '技術線圖'){
+              document.getElementById("container_tech").style.display = "inline-block";
+              document.getElementById("container_realtime").style.display = "none";
+            }
+            else if (type == '即時走勢'){
+              document.getElementById("container_realtime").style.display = "inline-block";
+              document.getElementById("container_tech").style.display = "none";
+            };
+          }
+    
+          $(document).ready(function(){
+            stock_id = document.getElementById("stock").innerHTML;
+            // Highcharts.getJSON('http://localhost:5000/api/draw/'+stock_id, function (data) {
+            Highcharts.getJSON('https://raw.githubusercontent.com/itony215/flat_viewer_data/main/json/data_'+stock_id+'.json', function (data) {
+            // split the data set into ohlc and volume
+            // print('ddddddd',stock_id)
+            var ohlc = [],
+              volume = [],
+              ma5 = [],
+              ma10 = [],
+              ma20 = [],
+              ma60 = [],
+              obos = [],
+              have = [],
+              dataLength = data.length;
+          
+            for (var i = 0; i < dataLength; i += 1) {
+              ohlc.push([
+                data[i][0], // the date
+                data[i][1], // open
+                data[i][2], // high
+                data[i][3], // low
+                data[i][4] // close
+              ]);
+          
+              volume.push([
+                data[i][0], // the date
+                data[i][5] // the volume
+              ]);
+          
+              ma5.push([
+                data[i][0], // the date
+                data[i][8] // the volume
+              ]);
+          
+              ma10.push([
+                data[i][0], // the date
+                data[i][9] // the volume
+              ]);
+          
+              ma20.push([
+                data[i][0], // the date
+                data[i][10] // the volume
+              ]);
+          
+              ma60.push([
+                data[i][0], // the date
+                data[i][11] // the volume
+              ]);
+          
+              obos.push([
+                data[i][0], // the date
+                data[i][6] // the volume
+              ]);
+          
+              have.push([
+                data[i][0], // the date
+                data[i][7] // the volume
+              ]);
+            }
+    
+            // create the chart
+            Highcharts.stockChart('container_tech', {
+              plotOptions: {
+                  candlestick: {
+                      color: 'green',
+                      upColor: 'red'
+                  },
+                  series: {
+                  showInLegend: true
+                }
+          
+              },
+              chart: {
+                height: 600
+              },
+              legend: {
+                enabled: true
+              },
+              rangeSelector: {
+                selected: 0
+              },
+          
+              yAxis: [{
+                height: '60%'
+              }, {
+                top: '62%',
+                height: '20%'
+              }, {
+                top: '82%',
+                height: '20%'
+              }],
+              series: [{
+                type: 'candlestick',
+                id: 'aapl',
+                name: '股價',
+                data: data
+              }, {
+                type: 'column',
+                id: 'volume',
+                name: '成交量',
+                data: volume,
+                yAxis: 1
+              }, 
+              {
+                type: 'line',
+                id: 'ma5',
+                name: 'ma5',
+                linkedTo: 'aapl',
+                data: ma5,
+                yAxis: 0
+              }, 
+              {
+                type: 'line',
+                id: 'ma10',
+                name: 'ma10',
+                linkedTo: 'aapl',
+                data: ma10,
+                yAxis: 0
+              }, 
+              {
+                type: 'line',
+                id: 'ma20',
+                name: 'ma20',
+                linkedTo: 'aapl',
+                data: ma20,
+                yAxis: 0
+              }, 
+              {
+                type: 'line',
+                id: 'ma60',
+                name: 'ma60',
+                linkedTo: 'aapl',
+                data: ma60,
+                yAxis: 0
+              }, 
+              {
+                type: 'psar',
+                id: 'psar',
+                name: 'SAR',
+                linkedTo: 'aapl',
+                yAxis: 0
+              }, 
+              {
+                type: 'column',
+                name: '投信買賣超',
+                id: 'obos',
+                linkedTo: 'aapl',
+                data: obos,
+                yAxis: 2
+              },
+              {
+                type: 'column',
+                name: '融券',
+                id: 'have',
+                linkedTo: 'aapl',
+                data: have,
+                yAxis: 2
+              }
+            ]
+            });
+          })});
+    
+          $(document).ready(function(){
+            stock_id = document.getElementById("stock").innerHTML;
+            Highcharts.getJSON('http://localhost:5000/api/draw2/'+stock_id, function (data) {
+            // split the data set into ohlc and volume
+            var pre = data.slice(-1)[0][0];
+            var h = data.slice(-1)[0][1];
+            var l = data.slice(-1)[0][2];
+            var y = data.slice(-1)[0][3];
+            var m = data.slice(-1)[0][4]-1;
+            var d = data.slice(-1)[0][5];
+            var volume = [],
+                price = [],
+                dataLength = data.length-1;
+              
+            for (var i = 0; i < dataLength-1; i += 1) {
+              volume.push([
+                data[i][0], // open
+                data[i][2], // open
+              ]);
+              price.push([
+                data[i][0], // open
+                data[i][1] // the volume
+              ]);
+            }
+            // create the chart
+            let offset = new Date().getTimezoneOffset();
+            Highcharts.chart('container_realtime', {
+              time: { timezoneOffset: offset },
+              xAxis: {
+                type: 'datetime',
+                min: Date.UTC(y, m, d, 1),
+                max: Date.UTC(y, m, d, 5, 30),
+              },
+              plotOptions: {
+                  series: {
+                  pointInterval: 60000, // one minute
+                  showInLegend: true
+                }
+          
+              },
+              chart: {
+                height: 600,
+                width: 600
+              },
+              title:{
+                text:''
+              },
+              subTitle:{
+                text:''
+              }, 
+              legend: {
+                enabled: true
+              },
+          
+              yAxis: [{
+                min: l, max: h,
+                top: '10%',
+                height: '70%',
+                title:{
+                      text:'',
+                  },
+                  plotLines:[
+                    {
+                    color:'red',
+                    dashStyle:'solid',
+                    value:h,
+                    width:2
+                  },
+                  {
+                    color:'green',
+                    dashStyle:'solid',
+                    value:l,
+                    width:2
+                  },
+                  {
+                    color:'black',
+                    dashStyle:'solid',
+                    value:pre,
+                    width:2
+                  }]}, {
+                top: '80%',
+                height: '20%',
+                title:{
+                      text:'',
+                  }
+              }],
+              
+              series: [{
+                id: 'price',
+                name: '股價',
+                data: price
+              }, {
+                type: 'column',
+                id: 'volume',
+                name: '成交量',
+                data: volume,
+                linkedTo: 'price',
+                yAxis: 1
+              }
+            ]
+            });
+          })});
+    
+    
+          
+          
+        
+        
+        </script>
+        
+        <style>
+        .flex {
+          position: fixed;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          padding: 20px 20px;
+          width: 90vw;
+          height: 660px;
+          max-width: 1000px;
+          overflow: auto;
+          border: 2px solid rgb(68, 68, 68);
+          background: rgb(255, 255, 255);
+          z-index: 4
+        };
+        .portfolio_item{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-wrap: nowrap;
+        };
+        </style>
+      
+    
+    </div>
+</body>
+</html>
