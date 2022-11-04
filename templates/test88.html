@@ -5,11 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <!-- <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="https://code.highcharts.com/stock/modules/data.js"></script>
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/atomic.b4448dde.css') }}">
+    <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script> -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/atomic.b4448dde.css') }}"> -->
     <title>Tony Stock</title>
    
 </head>
@@ -80,7 +80,7 @@
     function changeColor(){
           document.querySelectorAll('span').forEach(function(item) {
               var closer = document.getElementById('yesterday_closer').innerHTML
-              console.log(closer)
+              // console.log(closer)
               if(item.classList.contains('computed_by_yesterday')){
                 if (item.innerHTML == document.getElementById('limitUpPrice').innerHTML){
                   $(item).addClass('C(#fff) Px(6px) Py(2px) Bdrs(4px) Bgc($c-trend-up)')
@@ -457,7 +457,7 @@
     
           $(document).ready(function(){
             stock_id = document.getElementById("stock").innerHTML;
-            Highcharts.getJSON('http://localhost:5000/api/draw2/'+stock_id, function (data) {
+            Highcharts.getJSON('https://flat-viewer-backend.onrender.com/api/draw2/'+stock_id, function (data) {
             // split the data set into ohlc and volume
             var pre = data.slice(-1)[0][0];
             var h = data.slice(-1)[0][1];
