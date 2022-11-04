@@ -63,4 +63,4 @@ def draw2(stock_id):
     return json_data
 
 
-# app.run()
+app.run()
