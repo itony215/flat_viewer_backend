@@ -33,7 +33,7 @@
           $("#previousVolume").text('{{data[0]["previousVolume"]}}'/1000);
           $("#avgPrice").text('{{data[0]["avgPrice"]}}');
           $("#volume").text('{{data[0]["volume"]}}'/1000);
-          $("#turnoverM").text('{{data[0]["turnoverM"]}}'/100);
+          $("#turnoverM").text(('{{data[0]["turnoverM"]}}'/100).toFixed(3));
           $("#dealPrice").text('{{data[0]["price"]}}');
           $("#change2").text('{{data[0]["change"]}}');
           $("#changePercent2").text('{{data[0]["changePercent"]}}');
